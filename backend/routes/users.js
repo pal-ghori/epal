@@ -352,4 +352,46 @@ router.get("/getsingleuser/:id", async (req, res) => {
   }
 })
 
+// ----------- Register User -------------
+router.post("/register", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({
+        status: 400,
+        message: "Email and Password required"
+      });
+    }
+
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({
+        status: 400,
+        message: "User already exists"
+      });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const newUser = new User({
+      email,
+      password: hashedPassword
+    });
+
+    await newUser.save();
+
+    return res.status(200).json({
+      status: 200,
+      message: "User registered successfully"
+    });
+
+  } catch (error) {
+    return res.status(500).json({
+      status: 500,
+      error: error.message
+    });
+  }
+});
+
 module.exports = router;

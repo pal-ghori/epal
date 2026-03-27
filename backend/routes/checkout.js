@@ -9,10 +9,10 @@ const Razorpay = require('razorpay');
 const crypto = require("crypto");
 const CheckOut = require('../model/checkOut.model');
 
-// const instance = new Razorpay({
-//     key_id: 'rzp_test_OdnQ1ZHhkpl4fG',
-//     key_secret: '2tGnYqDaan6fEwlok0KPe8Ak',
-// });
+const instance = new Razorpay({
+    key_id: 'rzp_test_OdnQ1ZHhkpl4fG',
+    key_secret: '2tGnYqDaan6fEwlok0KPe8Ak',
+});
 
 
 router.get("/", (req, res) => {
@@ -25,6 +25,13 @@ router.post("/add-detail-of-checkout", async (req, res, next) => {
     try {
         const userId = req.query.userId
         const cartId = req.query.cartId
+        const cartItems = await AddToCart.find({ userId });
+
+if (!cartItems.length) {
+  return res.status(400).json({
+    message: "Cart is empty"
+  });
+}   
         // Check id is valid or not
         if (!userId) {
             return res.status(404).json({

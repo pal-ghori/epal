@@ -80,7 +80,7 @@ const VerifyUserData = () => {
             key: "rzp_test_5ez4Vyrl60o1D4", // Enter the Key ID generated from the Dashboard
             amount: amount.toString(),
             currency: currency,
-            name: "epal Clothing",
+            name: "chani Clothing",
             description: "Test Transaction",
             image: `${require('./Routs/img/logo.png')}`,
             order_id: id,

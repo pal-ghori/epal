@@ -9,7 +9,7 @@ let Subscribe = () => {
                         <div className="col-xxl-4">
                             <div className='text-center contact-text'>
                                 <h3>Contact Us</h3>
-                                <p>Email : epal@cmssuperheroes.com</p>
+                                <p>Email : chani@cmssuperheroes.com</p>
                                 <p>Phone : 02 01061245741</p>
                             </div>
                         </div>

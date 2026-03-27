@@ -8,7 +8,7 @@ const Contactus = () => {
                     <div className="info-text col-xxl-4 col-xl-4 col-lg-4 col-md-4">
                         <div className="my-4 para">
                             <h5>Contact Info</h5>
-                            <p>Email Us: epal@cmssuperheroes.com</p>
+                            <p>Email Us: chani@cmssuperheroes.com</p>
                             <p>Call Us: 002 0198745701</p>
                         </div>
                         <div className="my-4 para">

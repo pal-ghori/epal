@@ -8,7 +8,7 @@ let Footer = () => {
                     <div className="row">
                         <div className="col-xxl-6 col-xl-6 col-lg-6 col-md-6 col-12 footer-text">
                             <h4>About Our Store</h4>
-                            <p>Our values in epal are upheld within high quality tailoring, fabric insight and innovative design alongside the desire for innovative and the natural beauty with versatility and top of mind allowing for the investment pieces.</p>
+                            <p>Our values in Chani are upheld within high quality tailoring, fabric insight and innovative design alongside the desire for innovative and the natural beauty with versatility and top of mind allowing for the investment pieces.</p>
                             <img src={require('./Routs/img/asset 39.png')} alt="" />
                         </div>
                         <div className="col-xxl-2 col-xl-2 col-lg-2 col-md-2 col-12 footer-text">
@@ -51,7 +51,7 @@ let Footer = () => {
                             <p className='text-start'>United States (USD $)</p>
                         </div>
                         <div className="col-xxl-6 col-xl-6 col-lg-6 col-md-12 col-12 footer-end">
-                            <p className='text-end'>©2024 epal, All Rights Reserved. With Love by CMSSuperHeroes</p>
+                            <p className='text-end'>©2024 chani, All Rights Reserved. With Love by CMSSuperHeroes</p>
                         </div>
                     </div>
                 </div>

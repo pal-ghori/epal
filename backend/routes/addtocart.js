@@ -11,8 +11,8 @@ router.get("/", (req, res) => {
 // add item into add to cart
 router.post("/addtocart", async (req, res, next) => {
     try {
-        const userId = req.query.userId
-        const productId = req.query.productId
+        const userId = req.body.userId;
+        const productId = req.body.productId;
 
         if (!userId) {
             return res.status(404).json({
@@ -23,7 +23,7 @@ router.post("/addtocart", async (req, res, next) => {
         }
         if (!productId) {
             return res.status(404).json({
-                satus: 400,
+                status: 400,
                 success:false,
                 message: "Can not found productId."
             })
