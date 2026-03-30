@@ -8,18 +8,18 @@ const UserRegister = () => {
     const [email, setEmail] = useState('');
     const [number, setNumber] = useState('');
     const [password, setPassword] = useState('');
-    const [fisrtName, setFirstName] = useState('');
+    const [firstname, setFirstName] = useState('');
     const [LastName, setLastName] = useState('');
     const navigate = useNavigate();
 
 
     const signIn = (e) => {
         e.preventDefault();
-        axios.post(`http://localhost:5000/users/sign-up`, {
+            axios.post(`http://localhost:5000/users/sign-up`, {
             email: email,
             number: number,
             password: password,
-            firstName: fisrtName,
+            firstName: firstname,
             lastName: LastName,
         })
             .then(function (response) {
@@ -55,9 +55,9 @@ const UserRegister = () => {
                 }
             })
             .catch(function (error) {
-                alert("Plaese Enter Valid Data....");
-                console.log(error);
-            })
+    console.log(error.response); // IMPORTANT
+    alert(error.response?.data?.message || "Something went wrong");
+})
     }
 
     const navigateToHome = () => {

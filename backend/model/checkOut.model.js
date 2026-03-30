@@ -43,7 +43,7 @@ const checkOutSchema = new mongoose.Schema({
             place: {
                 type: String,
                 required: true,
-                enum: ["Home", "Office"],
+                enum: ["home", "office"],
                 default: "Home"
             },
             deliveryMethod:{

@@ -41,20 +41,29 @@ const SingleProduct = (props) => {
         setIsLogged(null);
     };
 
-    let postquery = (e) => {
-        console.log(id);
-        let userid = sessionStorage.getItem('userId');
-        // console.log(userid);
-        axios.post(`http://localhost:5000/cart/addtocart?userId=${userid}&productId=${id}`)
-            .then((res) => {
-                console.log(res);
-                navigate('/AddToCart')
+    const postquery = () => {
+    console.log("ADD TO CART CLICKED");
 
-            })
-            .catch(function (error) {
-                console.log(error);
-            })
+    let userid = sessionStorage.getItem('userId');
+
+    if (!userid) {
+        alert("Please login first");
+        navigate("/UserLogin");
+        return;
     }
+
+    axios.post("http://localhost:5000/cart/addtocart", {
+        userId: userid,
+        productId: id
+    })
+    .then((res) => {
+        console.log("SUCCESS:", res);
+        navigate('/AddToCart');
+    })
+    .catch((error) => {
+        console.log("ERROR:", error.response?.data || error);
+    });
+};
 
     return (
         <section>
@@ -113,9 +122,7 @@ const SingleProduct = (props) => {
                             <p>(1 customer review / Add review)</p>
                         </div>
                         <p>Our products use finest materials and stunning design to create something special. Transformative colours, bold textiles and unique prints, natural fibres with high our quality craftsmanship design remains at forefront. We believe in creating unique products, so we use finest materials and stunning design to create special items.</p>
-                        <Link className="singleProduct-info">
-                            <button onClick={() => { postquery(id) }}>ADD TO CART</button>
-                        </Link>
+                        <button onClick={postquery}>ADD TO CART</button>
                         <div className="whislist d-flex">
                             <CiHeart className="single-whislist" />
                             <p>ADD TO WISHLIST</p>

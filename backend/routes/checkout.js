@@ -1,3 +1,4 @@
+require("dotenv").config();
 var express = require('express');
 var router = express.Router();
 const checkOut = require("../model/checkOut.model")
@@ -7,11 +8,10 @@ const Order = require("../model/order.model")
 const AddToCart = require("../model/cart.model")
 const Razorpay = require('razorpay');
 const crypto = require("crypto");
-const CheckOut = require('../model/checkOut.model');
 
 const instance = new Razorpay({
-    key_id: 'rzp_test_OdnQ1ZHhkpl4fG',
-    key_secret: '2tGnYqDaan6fEwlok0KPe8Ak',
+    key_id: `rzp_test_SXSYjqBhXWVqTb`,
+    key_secret: `DksEJhYIkaV3gPr9AhboqtSH`,
 });
 
 
@@ -21,117 +21,107 @@ router.get("/", (req, res) => {
 
 
 // ----------------- Create checkOut -----------------
-router.post("/add-detail-of-checkout", async (req, res, next) => {
+router.post("/add-detail-of-checkOut", async (req, res) => {
     try {
-        const userId = req.query.userId
-        const cartId = req.query.cartId
-        const cartItems = await AddToCart.find({ userId });
+        const { userId, cartId } = req.query;
 
-if (!cartItems.length) {
-  return res.status(400).json({
-    message: "Cart is empty"
-  });
-}   
-        // Check id is valid or not
+        // ✅ Validate IDs
         if (!userId) {
-            return res.status(404).json({
-                status: 404,
-                message: "Can not Found userId"
-            })
-        }
-        if (!cartId) {
-            return res.status(404).json({
-                status: 404,
-                message: "Can not Found addToCartId"
-            })
-        }
-        try {
-            const user = await User.findById(userId)
-            if (!user) {
-                return res.status(404).json({
-                    status: 404,
-                    message: "Can not Get User"
-                })
-            }
-            // add data into database
-            userCheck = await CheckOut.findOne({ "user.user_id": userId });
-            console.log(userCheck);
-            if(userCheck){
-                userCheck.user.cart_id = cartId
-                await userCheck.save({validateBeforeSave: false})
-            }
-            try {
-                const checkOutData = await checkOut.create({
-                    user: {
-                        user_id: userId,
-                        cart_id: cartId,
-                        detail: [{
-                            name: req.body.name,
-                            addressOne: req.body.addressone,
-                            addressTwo: req.body.addresstwo,
-                            pinCode: req.body.pincode,
-                            city: req.body.city,
-                            state: req.body.state,
-                            mobile: req.body.mobile,
-                            place: req.body.place,
-                            deliveryMethod: req.body.typeofdelivery
-                        }]
-                    }
-                })
-                if (checkOutData.user.detail[0].deliveryMethod == "cash on delivery") {
-                    checkOutData.user.detail[0].isPlaced = true
-                    await checkOutData.save({ validateBeforeSave: false })
-                }
-                if (checkOutData) {
-                    return res.status(200).json({
-                        status: 200,
-                        message: "Ok",
-                        data: checkOutData
-                    })
-                }
-                // check if data add or not
-                if (!checkOutData) {
-                    return res.status(404).json({
-                        status: 404,
-                        message: "Can not Upload data in DataBase"
-                    })
-                }
-                return res.status(201).json({
-                    status: 201,
-                    message: "Create Checkout Successfully !!!",
-                    data: checkOutData
-                })
-
-            } catch (error) {
-                return res.status(500).json({
-                    status: 500,
-                    message: "can not send Data into DataBase",
-                    error: error.message
-                })
-            }
-        } catch (error) {
             return res.status(400).json({
                 status: 400,
-                message: "Can not get User",
-                error: error.message
-            })
+                message: "UserId is required"
+            });
         }
+
+        if (!cartId) {
+            return res.status(400).json({
+                status: 400,
+                message: "CartId is required"
+            });
+        }
+
+        // ✅ Check user exists
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(400).json({
+                status: 400,
+                message: "User not found"
+            });
+        }
+
+        // ✅ Check cart exists
+        const cartItems = await AddToCart.findById(cartId);
+
+        if (!cartItems || !cartItems.user || !cartItems.user.product || cartItems.user.product.length === 0) {
+            return res.status(400).json({
+                status: 400,
+                message: "Cart is empty"
+            });
+        }
+
+
+        let checkOutData = await checkOut.findOne({ "user.user_id": userId });
+
+        const checkOutDetails = {
+            name: req.body.name,
+            addressOne: req.body.addressone,
+            addressTwo: req.body.addresstwo,
+            pinCode: req.body.pincode,
+            city: req.body.city,
+            state: req.body.state,
+            mobile: req.body.mobile,
+            place: req.body.place,
+            deliveryMethod: req.body.typeofdelivery
+        };
+
+        // ✅ Update existing checkOut
+       if (checkOutData) {
+    checkOutData = await checkOut.findOneAndUpdate(
+        { "user.user_id": userId },
+        {
+            $set: {
+                "user.cart_id": cartId,
+                "user.detail": [checkOutDetails]
+            }
+        },
+        { new: true }
+    );
+}
+        // ✅ Create new checkOut
+        else {
+            checkOutData = await checkOut.create({
+                user: {
+                    user_id: userId,
+                    cart_id: cartId,
+                    detail: [checkOutDetails]
+                }
+            });
+        }
+
+        return res.status(200).json({
+            status: 200,
+            message: "checkOut saved successfully",
+            data: checkOutData
+        });
+
     } catch (error) {
-        return res.status(400).json({
-            status: 400,
-            message: "Somne thing went wrong in checkout Data Get",
-            error: error.message
-        })
+        console.log("FULL ERROR:", error); // 🔥 important
+        console.log("RESPONSE:", error.response);
+        console.log("DATA:", error.response?.data);
+
+        res.status(500).json({
+            message: error.message
+        });
     }
-})
+});
 
 // ----------------- Get all checkOut Data -----------------
-router.get("/getallcheckout", async (req, res) => {
+router.get("/getallcheckOut", async (req, res) => {
     const data = await checkOut.find()
 
     if (!data) {
-        return res.status(404).json({
-            status: 404,
+        return res.status(400).json({
+            status: 400,
             message: "Can not Foundn data"
         })
     }
@@ -141,49 +131,49 @@ router.get("/getallcheckout", async (req, res) => {
     })
 })
 
-// ----------------- Single Checkout Detail -----------------
+// ----------------- Single checkOut Detail -----------------
 
-router.get("/getcheckout/:id", async (req, res) => {
+router.get("/getcheckOut/:id", async (req, res) => {
     const user_id = req.params.id;
     if (user_id) {
-        const user = await CheckOut.findOne({ "user.user_id": user_id });
+        const user = await checkOut.findOne({ "user.user_id": user_id });
         console.log(user);
         return res.status(200).json({
             status: 200,
             data: user
         })
     } else {
-        return res.status(404).json({
-            status: 404,
+        return res.status(400).json({
+            status: 400,
             message: "Can not Foundn data"
         })
     }
 })
 
-// ----------------- Update Checkout Detail -----------------
-router.patch("/updatecheckoutdetail/:id", async (req, res) => {
+// ----------------- Update checkOut Detail -----------------
+router.patch("/updatecheckOutdetail/:id", async (req, res) => {
     try {
         const id = req.params.id
         // Checlk id is valid or not
         if (!id) {
-            return res.status(404).json({
-                status: 404,
+            return res.status(400).json({
+                status: 400,
                 message: "Can not get Id"
             })
         }
-        const checkoutdata = await checkOut.findById(id)
+        const checkOutdata = await checkOut.findById(id)
         // check Data or not
-        if (!checkoutdata) {
-            return res.status(404).json({
-                status: 404,
-                message: "Can not get CheckOut Data"
+        if (!checkOutdata) {
+            return res.status(400).json({
+                status: 400,
+                message: "Can not get checkOut Data"
             })
         }
         // this is for name
         try {
             if (req.body.name) {
-                checkoutdata.name = req.body.name
-                await checkoutdata.save({ validateBeforeSave: false })
+                checkOutdata.name = req.body.name
+                await checkOutdata.save({ validateBeforeSave: false })
             }
         } catch (error) {
             return res.status(400).json({
@@ -195,8 +185,8 @@ router.patch("/updatecheckoutdetail/:id", async (req, res) => {
         // this is for addressone 
         try {
             if (req.body.addressone) {
-                checkoutdata.addressOne = req.body.addressone
-                await checkoutdata.save({ validateBeforeSave: false })
+                checkOutdata.addressOne = req.body.addressone
+                await checkOutdata.save({ validateBeforeSave: false })
             }
         } catch (error) {
             return res.status(400).json({
@@ -208,8 +198,8 @@ router.patch("/updatecheckoutdetail/:id", async (req, res) => {
         // this is for AddressTwo
         try {
             if (req.body.addresstwo) {
-                checkoutdata.addressTwo = req.body.addresstwo
-                await checkoutdata.save({ validateBeforeSave: false })
+                checkOutdata.addressTwo = req.body.addresstwo
+                await checkOutdata.save({ validateBeforeSave: false })
             }
         } catch (error) {
             return res.status(400).json({
@@ -221,8 +211,8 @@ router.patch("/updatecheckoutdetail/:id", async (req, res) => {
         // thi is for City
         try {
             if (req.body.city) {
-                checkoutdata.city = req.body.city
-                await checkoutdata.save({ validateBeforeSave: false })
+                checkOutdata.city = req.body.city
+                await checkOutdata.save({ validateBeforeSave: false })
             }
         } catch (error) {
             return res.status(400).json({
@@ -234,8 +224,8 @@ router.patch("/updatecheckoutdetail/:id", async (req, res) => {
         // this is for pincode
         try {
             if (req.body.pincode) {
-                checkoutdata.pinCode = req.body.pincode
-                await checkoutdata.save({ validateBeforeSave: false })
+                checkOutdata.pinCode = req.body.pincode
+                await checkOutdata.save({ validateBeforeSave: false })
             }
         } catch (error) {
             return res.status(400).json({
@@ -247,8 +237,8 @@ router.patch("/updatecheckoutdetail/:id", async (req, res) => {
         // this is for state
         try {
             if (req.body.state) {
-                checkoutdata.state = req.body.state
-                await checkoutdata.save({ validateBeforeSave: false })
+                checkOutdata.state = req.body.state
+                await checkOutdata.save({ validateBeforeSave: false })
             }
         } catch (error) {
             return res.status(400).json({
@@ -260,8 +250,8 @@ router.patch("/updatecheckoutdetail/:id", async (req, res) => {
         // this is for mobile
         try {
             if (req.body.mobile) {
-                checkoutdata.mobile = req.body.mobile
-                await checkoutdata.save({ validateBeforeSave: false })
+                checkOutdata.mobile = req.body.mobile
+                await checkOutdata.save({ validateBeforeSave: false })
             }
         } catch (error) {
             return res.status(400).json({
@@ -273,8 +263,8 @@ router.patch("/updatecheckoutdetail/:id", async (req, res) => {
         // this is for place
         try {
             if (req.body.place) {
-                checkoutdata.place = req.body.place
-                await checkoutdata.save({ validateBeforeSave: false })
+                checkOutdata.place = req.body.place
+                await checkOutdata.save({ validateBeforeSave: false })
             }
         } catch (error) {
             return res.status(400).json({
@@ -287,14 +277,14 @@ router.patch("/updatecheckoutdetail/:id", async (req, res) => {
         try {
             if (req.body.deliveryMethod) {
                 if (req.body.deliveryMethod == "cash on delivery") {
-                    checkoutdata.deliveryMethod = req.body.deliveryMethod
-                    checkoutdata.isPlaced = true
-                    await checkoutdata.save({ validateBeforeSave: false })
+                    checkOutdata.deliveryMethod = req.body.deliveryMethod
+                    checkOutdata.isPlaced = true
+                    await checkOutdata.save({ validateBeforeSave: false })
                 }
                 if (req.body.deliveryMethod == "online") {
-                    checkoutdata.deliveryMethod = req.body.deliveryMethod
-                    checkoutdata.isPlaced = false
-                    await checkoutdata.save({ validateBeforeSave: false })
+                    checkOutdata.deliveryMethod = req.body.deliveryMethod
+                    checkOutdata.isPlaced = false
+                    await checkOutdata.save({ validateBeforeSave: false })
                 }
             }
         } catch (error) {
@@ -318,14 +308,14 @@ router.patch("/updatecheckoutdetail/:id", async (req, res) => {
 })
 
 
-// ----------------- delete Checkout items -----------------
-router.delete("/deletecheckoutitem/:id", async (req, res) => {
+// ----------------- delete checkOut items -----------------
+router.delete("/deletecheckOutitem/:id", async (req, res) => {
     try {
         const id = req.params.id
         // check id is valid or not
         if (!id) {
-            return res.status(404).json({
-                status: 404,
+            return res.status(400).json({
+                status: 400,
                 message: "can not Found Id"
             })
         }
@@ -333,18 +323,18 @@ router.delete("/deletecheckoutitem/:id", async (req, res) => {
         try {
             const checkOutData = await checkOut.findById(id)
             if (!checkOutData) {
-                return res.status(404).json({
-                    status: 404,
-                    message: "Can not Foud Any CheckOut Item"
+                return res.status(400).json({
+                    status: 400,
+                    message: "Can not Foud Any checkOut Item"
                 })
             }
             // this is for delete data from database
             try {
                 const deletedata = await checkOut.deleteOne({ "_id": id })
                 if (!deletedata) {
-                    return res.status(404).json({
-                        status: 404,
-                        message: "can not Found Data of Delete Checkout Item"
+                    return res.status(400).json({
+                        status: 400,
+                        message: "can not Found Data of Delete checkOut Item"
                     })
                 }
                 return res.status(200).json({
@@ -379,16 +369,16 @@ router.post("/createsingleproductorder/:id", async (req, res) => {
     try {
         const productId = req.params.id
         if (!productId) {
-            return res.status(404).json({
-                status: 404,
+            return res.status(400).json({
+                status: 400,
                 message: "Can't get ProductID."
             })
         }
         if (productId) {
             const dataOfProduct = await Product.findById(productId)
             if (!dataOfProduct) {
-                return res.status(404).json({
-                    status: 404,
+                return res.status(400).json({
+                    status: 400,
                     message: "Can't get Product By ID.."
                 })
             }
@@ -407,8 +397,8 @@ router.post("/createsingleproductorder/:id", async (req, res) => {
                         // productInfo = JSON.parse(productDetails);
                         // userData = JSON.parse(userDetails);
                         const instance = new Razorpay({
-                            key_id: `rzp_test_5ez4Vyrl60o1D4`,
-                            key_secret: `CtjH2CuJilYLSr217iLnWeSb`,
+                            key_id:  `rzp_test_SXSYjqBhXWVqTb`,
+                            key_secret:  `DksEJhYIkaV3gPr9AhboqtSH`,
                         });
 
                         const options = {
@@ -440,8 +430,8 @@ router.post("/createsingleproductorder/:id", async (req, res) => {
                         // userData = JSON.parse(userDetails);
 
                         const instance = new Razorpay({
-                            key_id: `rzp_test_NVuwCXHaH3Ax8T`,
-                            key_secret: `KLWGXywP4TnerJGrDMSsUSUM`,
+                            key_id: `rzp_test_SXSYjqBhXWVqTb`,
+                            key_secret: `DksEJhYIkaV3gPr9AhboqtSH`,
                         });
 
                         const options = {
@@ -478,16 +468,16 @@ router.post("/createorderforallcart/:id", async (req, res) => {
     try {
         const addToCartId = req.params.id
         if (!addToCartId) {
-            return res.status(404).json({
-                status: 404,
+            return res.status(400).json({
+                status: 400,
                 message: "Cart Id not Found.",
             })
         }
 
         const DataOfCart = await AddToCart.findById(addToCartId)
         if (!DataOfCart) {
-            return res.status(404).json({
-                status: 404,
+            return res.status(400).json({
+                status: 400,
                 message: "can't found Data By CartId."
             })
         }
@@ -509,8 +499,8 @@ router.post("/createorderforallcart/:id", async (req, res) => {
 
                     const dataOfProducts = await Product.findById(DataOfCart.user.product[i].product_id)
                     if (!dataOfProducts) {
-                        return res.status(404).json({
-                            status: 404,
+                        return res.status(400).json({
+                            status: 400,
                             message: "can't get Data By productId."
                         })
                     }
@@ -544,13 +534,14 @@ router.post("/createorderforallcart/:id", async (req, res) => {
                     // productInfo = JSON.parse(productDetails);
                     // userData = JSON.parse(userDetails);
                     const instance = new Razorpay({
-                        key_id: `rzp_test_5ez4Vyrl60o1D4`,
-                        key_secret: `CtjH2CuJilYLSr217iLnWeSb`,
+                        key_id: `rzp_test_SXSYjqBhXWVqTb`,
+                        key_secret: `DksEJhYIkaV3gPr9AhboqtSH`,
                     });
 
                     const options = {
-                        amount: Number(totalAmount * 100),
+                        amount: Math.round(totalAmount * 100),
                         currency: "INR",
+                        receipt: "order_" + Date.now(),
                     };
                     const order = await instance.orders.create(options);
 
@@ -560,6 +551,9 @@ router.post("/createorderforallcart/:id", async (req, res) => {
                         arrayofproduct: productId
                     });
                 } catch (error) {
+                    console.log("❌ RAZORPAY ERROR:", error);   // FULL ERROR
+    console.log("❌ ERROR MESSAGE:", error.message);
+    console.log("❌ ERROR DETAILS:", error.error); // Razorpay gives this
                     return res.status(500).json({
                         status: 500,
                         message: "Internal Server error || can't do payment",
@@ -592,42 +586,42 @@ router.post("/createorderforallcart/:id", async (req, res) => {
 // ----------------- Payment Verification ------------------------
 router.post("/paymentvarification", async (req, res) => {
     try {
-        const { razorpayOrderId, razorpayPaymentId, razorpaySignature, userId, arrayofproduct, checkoutId } =
+        const { razorpayOrderId, razorpayPaymentId, razorpaySignature, userId, arrayofproduct, checkOutId } =
             req.body;
         if (!razorpayOrderId) {
-            return res.status(404).json({
-                status: 404,
+            return res.status(400).json({
+                status: 400,
                 message: "Can't get razorpayOrderId."
             })
         }
         if (!razorpayPaymentId) {
-            return res.status(404).json({
-                status: 404,
+            return res.status(400).json({
+                status: 400,
                 message: "Can't get razorpayPaymentId."
             })
         }
         if (!razorpaySignature) {
-            return res.status(404).json({
-                status: 404,
+            return res.status(400).json({
+                status: 400,
                 message: "Can't get razorpaySignature."
             })
         }
         if (!userId) {
-            return res.status(404).json({
-                status: 404,
+            return res.status(400).json({
+                status: 400,
                 message: "Can't get userId."
             })
         }
         if (!arrayofproduct) {
-            return res.status(404).json({
-                status: 404,
+            return res.status(400).json({
+                status: 400,
                 message: "Can't get arrayOfProductId."
             })
         }
-        if (!checkoutId) {
-            return res.status(404).json({
-                status: 404,
-                message: "Can't get checkoutId."
+        if (!checkOutId) {
+            return res.status(400).json({
+                status: 400,
+                message: "Can't get checkOutId."
             })
         }
         const body = razorpayOrderId + "|" + razorpayPaymentId;
@@ -647,27 +641,27 @@ router.post("/paymentvarification", async (req, res) => {
             if (isAuthentic) {
                 // here We are changeing in checkOut model for Order Place beacause by default it is false after Successfull Payment wecan do it True
                 try {
-                    const dataOfCheckOut = await checkOut.findById(checkoutId)
-                    if (!dataOfCheckOut) {
-                        return res.status(404).json({
-                            status: 404,
+                    const dataOfcheckOut = await checkOut.findById(checkOutId)
+                    if (!dataOfcheckOut) {
+                        return res.status(400).json({
+                            status: 400,
                             message: "Can't get data By checkOut Id."
                         })
                     }
-                    if (dataOfCheckOut) {
-                        dataOfCheckOut.user.detail[0].isPlaced = true
-                        await dataOfCheckOut.save({ validateBeforeSave: false })
-                        const deleteItemfromCart = await AddToCart.deleteOne({ "_id": dataOfCheckOut.user.cart_id })
+                    if (dataOfcheckOut) {
+                        dataOfcheckOut.user.detail[0].isPlaced = true
+                        await dataOfcheckOut.save({ validateBeforeSave: false })
+                        const deleteItemfromCart = await AddToCart.deleteOne({ "_id": dataOfcheckOut.user.cart_id })
                         if (!deleteItemfromCart) {
                             return res.status(500).json({
                                 status: 500,
                                 message: "Can't delete cart Item By Id.",
                             })
                         }
-                        const getcheckoutdata = await checkOut.findById(checkoutId)
+                        const getcheckOutdata = await checkOut.findById(checkOutId)
 
-                        getcheckoutdata.user.cart_id = null
-                        await getcheckoutdata.save({ validateBeforeSave: false })
+                        getcheckOutdata.user.cart_id = null
+                        await getcheckOutdata.save({ validateBeforeSave: false })
                     }
                 } catch (error) {
                     return res.status(500).json({
@@ -685,7 +679,7 @@ router.post("/paymentvarification", async (req, res) => {
                         // })
                         if (DataofOrder) {
                             const chekoutid = {
-                                checkOutid: checkoutId
+                                checkOutid: checkOutId
                             }
                             const paymentdetails = {
                                 razorpayOrderId: razorpayOrderId,
@@ -696,7 +690,7 @@ router.post("/paymentvarification", async (req, res) => {
                             //     product_id:arrayofproduct
                             // }
                             try {
-                                DataofOrder.user.checkoutIDs.push(chekoutid)
+                                DataofOrder.user.checkOutIDs.push(chekoutid)
                                 DataofOrder.user.paymentdetail.push(paymentdetails)
                                 DataofOrder.user.productId.push(arrayofproduct)
                                 await DataofOrder.save({ validateBeforeSave: false })
@@ -719,8 +713,8 @@ router.post("/paymentvarification", async (req, res) => {
                                 user: {
                                     user_id: userId,
 
-                                    checkoutIDs: [{
-                                        checkOutid: checkoutId
+                                    checkOutIDs: [{
+                                        checkOutid: checkOutId
                                     }],
                                     paymentdetail: [{
                                         razorpayOrderId: razorpayOrderId,
