@@ -10,148 +10,264 @@ import { Container } from "react-bootstrap";
 import { IoBagHandleOutline, IoLogOutOutline, IoSearch } from "react-icons/io5";
 import Footer from "./Footer";
 import Subscribe from "./Subscribe";
+import NAVBAR from "./NavBar";
 
-const SingleProduct = (props) => {
+// const SingleProduct = (props) => {
+//     const [data, setData] = useState({});
+//     const { id } = useParams();
+//     const navigate = useNavigate();
+
+//     // console.log(id);
+//     useEffect(() => {
+//         axios.get(`http://localhost:5000/admin/getsingleproduct/${id}`)
+//             .then(function (response) {
+//                 // console.log(response.data.data);
+//                 setData(response.data.data)
+//             })
+//             .catch(function (error) {
+//                 console.log(error);
+//             })
+//     }, [])
+
+//     const [isLogged, setIsLogged] = useState(sessionStorage.getItem('isLogged'));
+
+//     useEffect(() => {
+//         setIsLogged(sessionStorage.getItem('isLogged'));
+//     }, []);
+
+
+//     const handlerLogOut = async () => {
+//         sessionStorage.removeItem('isLogged');
+//         sessionStorage.removeItem('userId');
+//         setIsLogged(null);
+//     };
+
+//     const postquery = () => {
+//     console.log("ADD TO CART CLICKED");
+
+//     let userid = sessionStorage.getItem('userId');
+
+//     if (!userid) {
+//         alert("Please login first");
+//         navigate("/UserLogin");
+//         return;
+//     }
+
+//     axios.post("http://localhost:5000/cart/addtocart", {
+//         userId: userid,
+//         productId: id
+//     })
+//     .then((res) => {
+//         console.log("SUCCESS:", res);
+//         navigate('/AddToCart');
+//     })
+//     .catch((error) => {
+//         console.log("ERROR:", error.response?.data || error);
+//     });
+// };
+
+//     return (
+//         <section>
+//             {console.log(data)}
+//             <Navbar expand="lg" className="bg-body-success my-2 bg-dark padding-12 ">
+//                 <Container>
+//                     <Navbar.Brand href="#home" className='logo'><Link to="/"><img src={require('../Compnnents/Routs/img/asset 0.png')} alt="" /></Link></Navbar.Brand>
+//                     <Navbar.Toggle aria-controls="basic-navbar-nav" />
+//                     <Navbar.Collapse id="basic-navbar-nav">
+//                         <Nav className="navbar m-auto">
+//                             <Nav.Link className='navitems' to='/'>
+//                                 <Link to="/" className='page for-blackcolor'>Home</Link>
+//                             </Nav.Link>
+//                             <Nav.Link className='navitems' to='/Shop'>
+//                                 <Link to="/Shop" className='page for-blackcolor'>Shop</Link>
+//                             </Nav.Link>
+//                             <Nav.Link className='navitems' to='/About'>
+//                                 <Link to="/About" className='page for-blackcolor'>About</Link>
+//                             </Nav.Link>
+//                             <Nav.Link className='navitems' to='/Contact'>
+//                                 <Link to="/Contact" className='page for-blackcolor'>Contact</Link>
+//                             </Nav.Link>
+//                             {
+//                                 !isLogged ?
+//                                     <Nav.Link className='navitems' to='/UserLogin'>
+//                                         <Link to="/UserLogin" className='page'>Login</Link>
+//                                     </Nav.Link> : null
+//                             }
+//                         </Nav>
+//                         <div className='all-icons text-center d-flex justify-content-center align-items-center'>
+//                             <Link to='/AddToCart'>
+//                                 <IoBagHandleOutline className='icon' />
+//                                 {
+//                                     isLogged ?
+//                                     <IoLogOutOutline onClick={handlerLogOut}  className='iconLogOut' ></IoLogOutOutline>
+//                                     : null
+//                                 }
+//                             </Link>
+//                         </div>
+//                     </Navbar.Collapse>
+//                 </Container>
+//             </Navbar>
+//             <div className="container">
+//                 <div className="row mt-5">
+//                     <Carousel className="col-xxl-6 col-xl-6 col-lg-6 col-md-12 col-12 text-center ">
+//                         <img src={(data.image) ? data.image[0] : ""} alt="" height={'90%'} width={'90%'} />
+//                         <img src={(data.image) ? data.image[1] : ""} alt="" height={'90%'} width={'90%'} />
+//                     </Carousel>
+//                     <div className="col-xxl-6 col-xl-6 col-lg-6 col-md-12 col-12 singleProduct-info">
+//                         <h1>{data.title}</h1>
+//                         <div className="singleProduct-price d-flex">
+//                             <span className='text-danger'>&#x20B9; {data.price}</span>
+//                         </div>
+//                         <div className="star d-flex">
+//                             <FaStar className="single-star" /><FaStar className="single-star" /><FaStar className="single-star" /><FaStar className="single-star" /><FaStar className="single-star" />
+//                             <p>(1 customer review / Add review)</p>
+//                         </div>
+//                         <p>Our products use finest materials and stunning design to create something special. Transformative colours, bold textiles and unique prints, natural fibres with high our quality craftsmanship design remains at forefront. We believe in creating unique products, so we use finest materials and stunning design to create special items.</p>
+//                         <button onClick={postquery}>ADD TO CART</button>
+//                         <div className="whislist d-flex">
+//                             <CiHeart className="single-whislist" />
+//                             <p>ADD TO WISHLIST</p>
+//                         </div>
+//                         <hr />
+//                         <div className="tags">
+//                             <p>SKU:  ED5690058</p>
+//                             <p>CATEGORIES:
+//                                 BLOUSES, KNITWEAR, OUTERWEAR</p>
+//                             <p>TAGS:
+//                                 CASUAL, YELLOW</p>
+//                         </div>
+//                         <div className="social-icons">
+//                             <FaFacebook className="single-star" />
+//                             <FaInstagram className="single-star" />
+//                             <FaTiktok className="single-star" />
+//                             <FaTwitter className="single-star" />
+//                         </div>
+//                     </div>
+//                 </div>
+//                 <div className="Description">
+//                     <p className="text-center">DESCRIPTION</p>
+//                     <hr />
+//                     <p>Starting with our core, we are replacing the conventional composition of our Essentials Collection with more sustainable fibres in each product. An action only contributing to the longevity of the classic styles, designed to last and stand the test of time. Moving forward, we are committed to increasing percentage of the more sustainable fibres used in seasonal collections. Transformative colours partner bold textiles and unique prints, natural fibres paired with high our quality craftsmanship and thoughtful design remains at the forefront textile care labelling drying and taking care of our clothes.</p>
+//                 </div>
+//             </div>
+//             <Subscribe />
+//             <Footer />
+//         </section>
+//     )
+// }
+
+const SingleProduct = () => {
     const [data, setData] = useState({});
     const { id } = useParams();
     const navigate = useNavigate();
 
-    // console.log(id);
     useEffect(() => {
         axios.get(`http://localhost:5000/admin/getsingleproduct/${id}`)
-            .then(function (response) {
-                // console.log(response.data.data);
+            .then((response) => {
                 setData(response.data.data)
             })
-            .catch(function (error) {
+            .catch((error) => {
                 console.log(error);
             })
     }, [])
 
-    const [isLogged, setIsLogged] = useState(sessionStorage.getItem('isLogged'));
+    const postquery = () => {
+        let userid = sessionStorage.getItem('userId');
 
-    useEffect(() => {
-        setIsLogged(sessionStorage.getItem('isLogged'));
-    }, []);
+        if (!userid) {
+            alert("Please login first");
+            navigate("/UserLogin");
+            return;
+        }
 
-
-    const handlerLogOut = async () => {
-        sessionStorage.removeItem('isLogged');
-        sessionStorage.removeItem('userId');
-        setIsLogged(null);
+        axios.post("http://localhost:5000/cart/addtocart", {
+            userId: userid,
+            productId: id
+        })
+        .then(() => navigate('/AddToCart'))
+        .catch((error) => console.log(error));
     };
 
-    const postquery = () => {
-    console.log("ADD TO CART CLICKED");
-
-    let userid = sessionStorage.getItem('userId');
-
-    if (!userid) {
-        alert("Please login first");
-        navigate("/UserLogin");
-        return;
-    }
-
-    axios.post("http://localhost:5000/cart/addtocart", {
-        userId: userid,
-        productId: id
-    })
-    .then((res) => {
-        console.log("SUCCESS:", res);
-        navigate('/AddToCart');
-    })
-    .catch((error) => {
-        console.log("ERROR:", error.response?.data || error);
-    });
-};
-
     return (
-        <section>
-            {console.log(data)}
-            <Navbar expand="lg" className="bg-body-success my-2 bg-dark padding-12 ">
-                <Container>
-                    <Navbar.Brand href="#home" className='logo'><Link to="/"><img src={require('../Compnnents/Routs/img/asset 0.png')} alt="" /></Link></Navbar.Brand>
-                    <Navbar.Toggle aria-controls="basic-navbar-nav" />
-                    <Navbar.Collapse id="basic-navbar-nav">
-                        <Nav className="navbar m-auto">
-                            <Nav.Link className='navitems' to='/'>
-                                <Link to="/" className='page for-blackcolor'>Home</Link>
-                            </Nav.Link>
-                            <Nav.Link className='navitems' to='/Shop'>
-                                <Link to="/Shop" className='page for-blackcolor'>Shop</Link>
-                            </Nav.Link>
-                            <Nav.Link className='navitems' to='/About'>
-                                <Link to="/About" className='page for-blackcolor'>About</Link>
-                            </Nav.Link>
-                            <Nav.Link className='navitems' to='/Contact'>
-                                <Link to="/Contact" className='page for-blackcolor'>Contact</Link>
-                            </Nav.Link>
+        <>
+            <NAVBAR />
+
+            <div className="container py-5 mt-5">
+                <div className="row g-5">
+
+                    {/* LEFT - IMAGE */}
+                    <div className="col-lg-6">
+                        <div className="product-image-box">
+                            <img src={data.image ? data.image[0] : ""} alt="" />
+                        </div>
+
+                        <div className="d-flex gap-3 mt-3">
                             {
-                                !isLogged ?
-                                    <Nav.Link className='navitems' to='/UserLogin'>
-                                        <Link to="/UserLogin" className='page'>Login</Link>
-                                    </Nav.Link> : null
+                                data.image && data.image.map((img, i) => (
+                                    <img key={i} src={img} className="thumb-img" alt="" />
+                                ))
                             }
-                        </Nav>
-                        <div className='all-icons text-center d-flex justify-content-center align-items-center'>
-                            <Link to='/AddToCart'>
-                                <IoBagHandleOutline className='icon' />
-                                {
-                                    isLogged ?
-                                    <IoLogOutOutline onClick={handlerLogOut}  className='iconLogOut' ></IoLogOutOutline>
-                                    : null
-                                }
-                            </Link>
-                        </div>
-                    </Navbar.Collapse>
-                </Container>
-            </Navbar>
-            <div className="container">
-                <div className="row mt-5">
-                    <Carousel className="col-xxl-6 col-xl-6 col-lg-6 col-md-12 col-12 text-center ">
-                        <img src={(data.image) ? data.image[0] : ""} alt="" height={'90%'} width={'90%'} />
-                        <img src={(data.image) ? data.image[1] : ""} alt="" height={'90%'} width={'90%'} />
-                    </Carousel>
-                    <div className="col-xxl-6 col-xl-6 col-lg-6 col-md-12 col-12 singleProduct-info">
-                        <h1>{data.title}</h1>
-                        <div className="singleProduct-price d-flex">
-                            <span className='text-danger'>&#x20B9; {data.price}</span>
-                        </div>
-                        <div className="star d-flex">
-                            <FaStar className="single-star" /><FaStar className="single-star" /><FaStar className="single-star" /><FaStar className="single-star" /><FaStar className="single-star" />
-                            <p>(1 customer review / Add review)</p>
-                        </div>
-                        <p>Our products use finest materials and stunning design to create something special. Transformative colours, bold textiles and unique prints, natural fibres with high our quality craftsmanship design remains at forefront. We believe in creating unique products, so we use finest materials and stunning design to create special items.</p>
-                        <button onClick={postquery}>ADD TO CART</button>
-                        <div className="whislist d-flex">
-                            <CiHeart className="single-whislist" />
-                            <p>ADD TO WISHLIST</p>
-                        </div>
-                        <hr />
-                        <div className="tags">
-                            <p>SKU:  ED5690058</p>
-                            <p>CATEGORIES:
-                                BLOUSES, KNITWEAR, OUTERWEAR</p>
-                            <p>TAGS:
-                                CASUAL, YELLOW</p>
-                        </div>
-                        <div className="social-icons">
-                            <FaFacebook className="single-star" />
-                            <FaInstagram className="single-star" />
-                            <FaTiktok className="single-star" />
-                            <FaTwitter className="single-star" />
                         </div>
                     </div>
+
+                    {/* RIGHT - DETAILS */}
+                    <div className="col-lg-6">
+                        <div className="product-details">
+
+                            <h2>{data.title}</h2>
+
+                            <div className="price">₹ {data.price}</div>
+
+                            <div className="rating">
+                                <FaStar /><FaStar /><FaStar /><FaStar /><FaStar />
+                                <span>(1 review)</span>
+                            </div>
+
+                            <p className="desc">
+                                Premium quality fabric with modern design. Comfortable, stylish and perfect for everyday wear.
+                            </p>
+
+                            <button className="add-btn" onClick={postquery}>
+                                Add to Cart
+                            </button>
+
+                            <div className="wishlist">
+                                <CiHeart /> Add to Wishlist
+                            </div>
+
+                            <hr />
+
+                            <div className="meta">
+                                <p><b>Category:</b> Fashion</p>
+                                <p><b>Tags:</b> Casual, Trendy</p>
+                            </div>
+
+                            <div className="social">
+                                <FaFacebook />
+                                <FaInstagram />
+                                <FaTwitter />
+                                <FaTiktok />
+                            </div>
+
+                        </div>
+                    </div>
+
                 </div>
-                <div className="Description">
-                    <p className="text-center">DESCRIPTION</p>
-                    <hr />
-                    <p>Starting with our core, we are replacing the conventional composition of our Essentials Collection with more sustainable fibres in each product. An action only contributing to the longevity of the classic styles, designed to last and stand the test of time. Moving forward, we are committed to increasing percentage of the more sustainable fibres used in seasonal collections. Transformative colours partner bold textiles and unique prints, natural fibres paired with high our quality craftsmanship and thoughtful design remains at the forefront textile care labelling drying and taking care of our clothes.</p>
+
+                {/* DESCRIPTION */}
+                <div className="product-desc mt-5">
+                    <h4>Description</h4>
+                    <p>
+                        Designed with high-quality materials and crafted for comfort.
+                        A perfect blend of style and durability for modern fashion lovers.
+                    </p>
                 </div>
+
             </div>
+
             <Subscribe />
             <Footer />
-        </section>
+        </>
     )
 }
 

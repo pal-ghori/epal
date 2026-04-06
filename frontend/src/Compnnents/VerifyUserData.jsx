@@ -5,6 +5,7 @@ import { IoBagHandleOutline, IoLogOutOutline, IoSearch } from 'react-icons/io5';
 import { Link, useNavigate } from 'react-router-dom';
 import Footer from './Footer';
 import Subscribe from './Subscribe';
+import NAVBAR from "./NavBar";
 
 const VerifyUserData = () => {
     const [data, setData] = useState([]);
@@ -200,7 +201,7 @@ const VerifyUserData = () => {
 
     return (
         <>
-           <Navbar expand="lg" className="bg-body-success my-2 bg-dark padding-12 ">
+           {/* <Navbar expand="lg" className="bg-body-success my-2 bg-dark padding-12 ">
                 <Container>
                     <Navbar.Brand href="#home" className='logo'><Link to="/"><img src={require('../Compnnents/Routs/img/asset 0.png')} alt="" /></Link></Navbar.Brand>
                     <Navbar.Toggle aria-controls="basic-navbar-nav" />
@@ -237,8 +238,8 @@ const VerifyUserData = () => {
                         </div>
                     </Navbar.Collapse>
                 </Container>
-            </Navbar>
-            <div className="container-1000">
+            </Navbar> */}
+            {/* <div className="container-1000">
                 <div className='userverify-all-detail'>
                     <h2>User Details: </h2>
                     <hr className='hr-gray-two' />
@@ -283,7 +284,52 @@ const VerifyUserData = () => {
                     </div>
                     <div className="placeorder my-5"><button onClick={displayRazorpay}>Place Order</button></div>
                 </div>
-            </div>
+            </div> */}
+<NAVBAR />
+            <div className="verify-section mt-5">
+
+  <div className="verify-card">
+
+    <h3>Shipping Details 📦</h3>
+
+    <div className="detail-row">
+      <span>Name</span>
+      <span>{data?.name}</span>
+    </div>
+
+    <div className="detail-row">
+      <span>Address</span>
+      <span>{data?.addressOne}, {data?.addressTwo}</span>
+    </div>
+
+    <div className="detail-row">
+      <span>City</span>
+      <span>{data?.city}</span>
+    </div>
+
+    <div className="detail-row">
+      <span>State</span>
+      <span>{data?.state}</span>
+    </div>
+
+    <div className="detail-row">
+      <span>Pincode</span>
+      <span>{data?.pinCode}</span>
+    </div>
+
+    <div className="detail-row">
+      <span>Mobile</span>
+      <span>{data?.mobile}</span>
+    </div>
+
+    <button className="pay-btn" onClick={displayRazorpay}>
+      Proceed to Payment 💳
+    </button>
+
+  </div>
+
+</div>
+
             <Subscribe />
 
 
